@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác thực mã OTP - Lươn Việt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+
+<div class="auth-page">
+    <div class="auth-left">
+        <a th:href="@{/}" class="brand-logo" style="color: white;">Lươn Việt<span class="brand-dot">.</span></a>
+        <div class="auth-left-content fade-in-up">
+            <h1>Xác thực bảo mật</h1>
+            <p style="font-size: 1.1rem; opacity: 0.9; max-width: 400px;">Bảo vệ tài khoản của bạn là ưu tiên hàng đầu của chúng tôi. Vui lòng xác minh để hoàn tất quá trình đăng nhập.</p>
+        </div>
+        <div style="opacity: 0.6; font-size: 0.9rem;">&copy; 2026 Lươn Việt. All rights reserved.</div>
+    </div>
+    
+    <div class="auth-right">
+        <div class="fade-in-up" style="text-align: center;">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="1.5" style="margin-bottom: 1.5rem;">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            
+            <h2>Nhập mã xác thực</h2>
+            <p class="auth-desc">Chúng tôi đã gửi mã OTP 6 số đến email <strong th:text="${email}">user@email.com</strong>. Vui lòng kiểm tra hộp thư.</p>
+
+            <div th:if="${error}" class="alert alert-error" th:text="${error}">Mã OTP không hợp lệ hoặc đã hết hạn.</div>
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}">Đã gửi lại mã OTP.</div>
+
+            <form id="otpForm" th:action="@{/auth/verify-otp}" method="POST">
+                <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="email" th:value="${email}">
+                <input type="hidden" id="fullOtp" name="otp" value="">
+                
+                <div class="otp-container">
+                    <input type="text" class="otp-inputs" maxlength="1" pattern="[0-9]" inputmode="numeric" required autocomplete="off">
+                    <input type="text" class="otp-inputs" maxlength="1" pattern="[0-9]" inputmode="numeric" required autocomplete="off">
+                    <input type="text" class="otp-inputs" maxlength="1" pattern="[0-9]" inputmode="numeric" required autocomplete="off">
+                    <input type="text" class="otp-inputs" maxlength="1" pattern="[0-9]" inputmode="numeric" required autocomplete="off">
+                    <input type="text" class="otp-inputs" maxlength="1" pattern="[0-9]" inputmode="numeric" required autocomplete="off">
+                    <input type="text" class="otp-inputs" maxlength="1" pattern="[0-9]" inputmode="numeric" required autocomplete="off">
+                </div>
+                
+                <button type="submit" class="btn btn-primary-lg">Xác nhận</button>
+            </form>
+
+            <form th:action="@{/auth/resend-otp}" method="POST" style="margin-top: 2rem;">
+                <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <input type="hidden" name="email" th:value="${email}">
+                <button type="submit" id="resendBtn" class="btn btn-ghost" style="border: none; padding: 0;" disabled>Gửi lại mã <span id="countdown">(còn 60s)</span></button>
+            </form>
+
+            <div class="auth-switch" style="margin-top: 1rem;">
+                <a th:href="@{/login}">Quay lại đăng nhập</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const inputs = document.querySelectorAll('.otp-inputs');
+        const form = document.getElementById('otpForm');
+        const hiddenOtp = document.getElementById('fullOtp');
+        
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.target.value.length > 1) {
+                    e.target.value = e.target.value.slice(0, 1);
+                }
+                if (e.target.value !== '' && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+                updateHiddenOtp();
+            });
+            
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+            
+            // Handle paste
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pastedData = e.clipboardData.getData('text').slice(0, 6).replace(/\D/g, '');
+                if (pastedData) {
+                    for (let i = 0; i < pastedData.length; i++) {
+                        if (i < inputs.length) {
+                            inputs[i].value = pastedData[i];
+                        }
+                    }
+                    if (pastedData.length < inputs.length) {
+                        inputs[pastedData.length].focus();
+                    } else {
+                        inputs[inputs.length - 1].focus();
+                    }
+                    updateHiddenOtp();
+                }
+            });
+        });
+        
+        function updateHiddenOtp() {
+            let otpValue = '';
+            inputs.forEach(input => {
+                otpValue += input.value;
+            });
+            hiddenOtp.value = otpValue;
+            
+            if (otpValue.length === 6) {
+                form.submit();
+            }
+        }
+        
+        // Timer for resend
+        const resendBtn = document.getElementById('resendBtn');
+        const countdownSpan = document.getElementById('countdown');
+        let timeLeft = 60;
+        
+        const timer = setInterval(() => {
+            timeLeft--;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                resendBtn.disabled = false;
+                countdownSpan.innerText = '';
+            } else {
+                countdownSpan.innerText = `(còn ${timeLeft}s)`;
+            }
+        }, 1000);
+    });
+</script>
+
+</body>
+</html>

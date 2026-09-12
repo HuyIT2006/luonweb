@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<body>
+    <header th:fragment="header" class="site-header">
+        <div class="header-container">
+            <a th:href="@{/}" class="brand-logo">Lươn Việt<span class="brand-dot">.</span></a>
+            
+            <nav class="nav-links">
+                <a th:href="@{/}">Trang chủ</a>
+                <a th:href="@{/products}">Sản phẩm</a>
+                <a th:href="@{/promotions}">Khuyến mãi</a>
+                <a th:href="@{/contact}">Liên hệ</a>
+            </nav>
+
+            <div class="header-actions">
+                <a th:href="@{/cart}" title="Giỏ hàng">
+                    <svg class="cart-icon" viewBox="0 0 24 24">
+                        <path d="M9 20a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-9.8-1.5h11.6c.5 0 .9-.4.9-.9V8H6.5L5.4 3.6C5.3 3.2 5 3 4.6 3H2v2h1.8l3 11.5c.2.8.9 1.4 1.7 1.4h7.7"/>
+                    </svg>
+                </a>
+                
+                <div sec:authorize="!isAuthenticated()" style="display: flex; gap: 0.5rem;">
+                    <a th:href="@{/login}" class="btn btn-ghost">Đăng nhập</a>
+                    <a th:href="@{/register}" class="btn btn-solid">Đăng ký</a>
+                </div>
+
+                <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-weight: 500;" sec:authentication="name">User</span>
+                    <form th:action="@{/logout}" method="post" style="margin: 0;">
+                        <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button type="submit" class="btn btn-ghost" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Đăng xuất</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </header>
+</body>
+</html>

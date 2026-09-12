@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Lươn Việt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+    <div class="admin-layout" th:with="currentPage='dashboard'">
+        <div th:replace="~{admin/fragments/sidebar :: sidebar}"></div>
+
+        <div class="admin-content">
+            <div class="admin-topbar">
+                <h1>Tổng Quan</h1>
+                <div class="admin-topbar-actions">
+                    <span style="color: #888; font-size: 0.9rem;" th:text="'Hôm nay: ' + ${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy')}">Hôm nay</span>
+                </div>
+            </div>
+
+            <div class="admin-main">
+                <!-- Stat Cards -->
+                <div class="stat-grid">
+                    <div class="stat-card green">
+                        <div class="stat-card-label">Tổng doanh thu</div>
+                        <div class="stat-card-value" th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</div>
+                        <div class="stat-card-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        </div>
+                    </div>
+                    <div class="stat-card amber">
+                        <div class="stat-card-label">Tổng đơn hàng</div>
+                        <div class="stat-card-value" th:text="${totalOrders}">0</div>
+                        <div class="stat-card-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line></svg>
+                        </div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-card-label">Đơn chờ xử lý</div>
+                        <div class="stat-card-value" th:text="${pendingOrders}">0</div>
+                        <div class="stat-card-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        </div>
+                    </div>
+                    <div class="stat-card blue">
+                        <div class="stat-card-label">Người dùng</div>
+                        <div class="stat-card-value" th:text="${totalUsers}">0</div>
+                        <div class="stat-card-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Second row stats -->
+                <div class="stat-grid" style="grid-template-columns: 1fr 1fr;">
+                    <div class="stat-card green">
+                        <div class="stat-card-label">Sản phẩm</div>
+                        <div class="stat-card-value" th:text="${totalProducts}">0</div>
+                    </div>
+                    <!-- Order Status Breakdown -->
+                    <div class="stat-card amber">
+                        <div class="stat-card-label">Phân bổ trạng thái đơn</div>
+                        <div style="margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                            <span th:each="entry : ${ordersByStatus}" class="badge" th:classappend="'badge-' + ${entry.key.toLowerCase()}">
+                                <span th:text="${entry.key}">STATUS</span>: <span th:text="${entry.value}" style="margin-left: 4px;">0</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="admin-table-container" style="margin-top: 2rem;">
+                    <div class="admin-table-header">
+                        <h3 class="brand-font">Đơn hàng gần đây</h3>
+                        <a th:href="@{/admin/orders}" class="btn btn-ghost" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Xem tất cả</a>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Khách hàng</th>
+                                <th>Tổng tiền</th>
+                                <th>Thanh toán</th>
+                                <th>Trạng thái</th>
+                                <th>Thời gian</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="order : ${recentOrders}">
+                                <td style="font-weight: 600;">#<span th:text="${order.id}">1</span></td>
+                                <td th:text="${order.fullName}">Tên KH</td>
+                                <td style="color: var(--amber); font-weight: 600;" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</td>
+                                <td>
+                                    <span class="badge" th:classappend="${order.paymentStatus.name() == 'PAID'} ? 'badge-paid' : 'badge-unpaid'" th:text="${order.paymentStatus.name() == 'PAID'} ? 'Đã TT' : 'Chưa TT'">Status</span>
+                                </td>
+                                <td>
+                                    <span class="badge" th:classappend="'badge-' + ${order.status.name().toLowerCase()}" th:text="${order.status.name()}">STATUS</span>
+                                </td>
+                                <td style="color: #888; font-size: 0.85rem;" th:text="${#temporals.format(order.createdAt, 'HH:mm dd/MM')}">12:00 01/01</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(recentOrders)}">
+                                <td colspan="6" style="text-align: center; color: #888; padding: 2rem;">Chưa có đơn hàng nào</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

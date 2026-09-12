@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Người dùng - Lươn Việt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+    <div class="admin-layout" th:with="currentPage='users'">
+        <div th:replace="~{admin/fragments/sidebar :: sidebar}"></div>
+
+        <div class="admin-content">
+            <div class="admin-topbar">
+                <h1>Quản lý Người dùng</h1>
+            </div>
+
+            <div class="admin-main">
+                <div th:if="${success}" class="admin-alert admin-alert-success" th:text="${success}"></div>
+
+                <div class="admin-table-container">
+                    <div class="admin-table-header">
+                        <h3 class="brand-font">Tất cả người dùng (<span th:text="${#lists.size(users)}">0</span>)</h3>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Họ tên</th>
+                                <th>Email</th>
+                                <th>Nguồn</th>
+                                <th>Quyền</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày tạo</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="u : ${users}">
+                                <td style="color: #888; font-weight: 600;">#<span th:text="${u.id}">1</span></td>
+                                <td style="font-weight: 500;" th:text="${u.fullName}">Tên</td>
+                                <td th:text="${u.email}">email@...</td>
+                                <td>
+                                    <span th:if="${u.provider.name() == 'GOOGLE'}" style="display: inline-flex; align-items: center; gap: 4px; background: #E8F0FE; color: #1A73E8; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.78rem; font-weight: 600;">
+                                        <svg width="14" height="14" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                                        Google
+                                    </span>
+                                    <span th:if="${u.provider.name() == 'LOCAL'}" style="color: #888; font-size: 0.85rem;">Email</span>
+                                </td>
+                                <td>
+                                    <form th:action="@{/admin/users/{id}/role(id=${u.id})}" method="POST" class="inline-form">
+                                        <select name="role" onchange="this.form.submit()">
+                                            <option value="USER" th:selected="${u.role.name() == 'USER'}">User</option>
+                                            <option value="ADMIN" th:selected="${u.role.name() == 'ADMIN'}">Admin</option>
+                                        </select>
+                                    </form>
+                                </td>
+                                <td>
+                                    <span class="badge" th:classappend="${u.enabled} ? 'badge-active' : 'badge-disabled'" th:text="${u.enabled} ? 'Hoạt động' : 'Vô hiệu'">Status</span>
+                                </td>
+                                <td style="color: #888; font-size: 0.85rem;" th:text="${u.createdAt != null ? #temporals.format(u.createdAt, 'dd/MM/yyyy') : '—'}">01/01/2026</td>
+                                <td>
+                                    <form th:action="@{/admin/users/{id}/toggle(id=${u.id})}" method="POST" style="margin: 0;">
+                                        <button type="submit" class="btn-sm" th:classappend="${u.enabled} ? 'btn-warning-sm' : 'btn-success-sm'" th:text="${u.enabled} ? 'Vô hiệu' : 'Kích hoạt'">Toggle</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

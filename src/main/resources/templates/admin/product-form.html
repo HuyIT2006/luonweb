@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${product.id != null ? 'Sửa sản phẩm' : 'Thêm sản phẩm'} + ' - Lươn Việt'">Sản phẩm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+    <div class="admin-layout" th:with="currentPage='products'">
+        <div th:replace="~{admin/fragments/sidebar :: sidebar}"></div>
+
+        <div class="admin-content">
+            <div class="admin-topbar">
+                <h1 th:text="${product.id != null ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới'}">Sản phẩm</h1>
+                <a th:href="@{/admin/products}" class="btn btn-ghost" style="padding: 0.5rem 1rem;">← Quay lại</a>
+            </div>
+
+            <div class="admin-main">
+                <form th:action="@{/admin/products/save}" method="POST" class="admin-form">
+                    <input type="hidden" name="id" th:value="${product.id}">
+
+                    <div class="form-group">
+                        <label>Tên sản phẩm *</label>
+                        <input type="text" name="name" class="form-control" th:value="${product.name}" required placeholder="VD: Lươn đồng tươi sống">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Giá (VNĐ) *</label>
+                        <input type="number" name="price" class="form-control" th:value="${product.price}" required min="0" step="1000" placeholder="VD: 180000">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Danh mục *</label>
+                        <select name="categoryId" required>
+                            <option value="">— Chọn danh mục —</option>
+                            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"
+                                    th:selected="${product.category != null && product.category.id == cat.id}">Danh mục</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mô tả</label>
+                        <textarea name="description" class="form-control" rows="4" th:text="${product.description}" placeholder="Mô tả chi tiết sản phẩm..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>URL Hình ảnh</label>
+                        <input type="text" name="imageUrl" class="form-control" th:value="${product.imageUrl}" placeholder="/images/ten-anh.jpg">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="toggle-label">
+                            <input type="checkbox" name="featured" th:checked="${product.featured}" value="true">
+                            <span>Sản phẩm nổi bật (hiển thị ở trang chủ)</span>
+                        </label>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;" th:text="${product.id != null ? 'Cập nhật' : 'Thêm mới'}">Lưu</button>
+                        <a th:href="@{/admin/products}" class="btn btn-ghost" style="padding: 0.75rem 2rem;">Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lươn Việt - Sản Phẩm Lươn Tươi Ngon Cấp Cao</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main>
+        <section class="hero fade-in-up">
+            <h1>Lươn Việt tươi ngon, chất lượng cao</h1>
+            <p>Khám phá hương vị truyền thống tinh tế, được chế biến từ những nguồn lươn đồng tuyển chọn, an toàn và bổ dưỡng cho gia đình bạn.</p>
+            <a th:href="@{/products}" class="btn btn-primary-lg" style="width: auto;">Mua ngay</a>
+            
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-num">500+</span>
+                    <span class="stat-label">Sản phẩm</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">98%</span>
+                    <span class="stat-label">Hài lòng</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-num">24h</span>
+                    <span class="stat-label">Giao hàng</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Danh mục nổi bật</h2>
+            </div>
+            <div class="category-grid">
+                <a th:each="cat : ${categories}" th:href="@{/category/{slug}(slug=${cat.slug})}" class="category-card">
+                    <div class="cat-icon" th:text="${cat.iconClass}">T</div>
+                    <h3 class="brand-font" th:text="${cat.name}">Tên danh mục</h3>
+                </a>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <h2 class="section-title">Sản phẩm bán chạy</h2>
+                <a th:href="@{/products}" class="btn btn-ghost">Xem tất cả</a>
+            </div>
+            <div class="product-grid">
+                <!-- Dynamically generated products -->
+                <div class="product-card" th:each="prod : ${featuredProducts}">
+                    <div class="product-img">
+                        <img th:if="${prod.imageUrl != null}" th:src="@{${prod.imageUrl}}" th:alt="${prod.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                        <svg th:unless="${prod.imageUrl != null}" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title" th:text="${prod.name}">Tên sản phẩm</h3>
+                        <div class="product-price" th:text="${#numbers.formatDecimal(prod.price, 0, 'COMMA', 0, 'POINT')} + '₫'">180.000₫</div>
+                        <form th:action="@{/cart/add}" method="POST" style="margin:0;">
+                            <input type="hidden" name="productId" th:value="${prod.id}"/>
+                            <input type="hidden" name="quantity" value="1"/>
+                            <button type="submit" class="btn btn-add">Thêm vào giỏ</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="promo-banner">
+                <h2>Ưu đãi thành viên mới</h2>
+                <p style="margin-bottom: 2rem; font-size: 1.1rem; opacity: 0.9;">Giảm ngay 10% cho đơn hàng đầu tiên khi đăng ký tài khoản Lươn Việt.</p>
+                <a th:href="@{/register}" class="btn btn-primary-lg" style="background: var(--amber); color: var(--forest-deep); width: auto;">Đăng ký ngay</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-grid">
+            <div class="footer-col">
+                <div class="brand-logo" style="color: var(--white); margin-bottom: 1rem;">Lươn Việt<span class="brand-dot">.</span></div>
+                <p style="opacity: 0.8;">Thương hiệu lươn đồng cao cấp, mang đến bữa ăn ngon và bổ dưỡng cho mọi gia đình Việt.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Khám phá</h4>
+                <ul>
+                    <li><a th:href="@{/}">Trang chủ</a></li>
+                    <li><a th:href="@{/products}">Sản phẩm</a></li>
+                    <li><a th:href="@{/promotions}">Khuyến mãi</a></li>
+                    <li><a th:href="@{/about}">Về chúng tôi</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Hỗ trợ</h4>
+                <ul>
+                    <li><a th:href="@{/faq}">Câu hỏi thường gặp</a></li>
+                    <li><a th:href="@{/shipping}">Chính sách giao hàng</a></li>
+                    <li><a th:href="@{/returns}">Đổi trả & Hoàn tiền</a></li>
+                    <li><a th:href="@{/contact}">Liên hệ</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Liên hệ</h4>
+                <ul>
+                    <li style="opacity: 0.8;">Hotline: 1900 1234</li>
+                    <li style="opacity: 0.8;">Email: hello@luonviet.vn</li>
+                    <li style="opacity: 0.8;">Địa chỉ: 123 Đường Lươn, Quận 1, TP.HCM</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Lươn Việt. Tất cả các quyền được bảo lưu.
+        </div>
+    </footer>
+
+</body>
+</html>

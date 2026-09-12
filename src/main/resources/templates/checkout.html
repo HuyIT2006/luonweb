@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh Toán - Lươn Việt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <style>
+        .checkout-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 2rem;
+        }
+        @media (max-width: 768px) {
+            .checkout-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        .form-section, .summary-section {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--forest-deep);
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+        .payment-methods {
+            margin-top: 1.5rem;
+        }
+        .payment-option {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .payment-option:hover {
+            border-color: var(--sage);
+            background: #f9fdfa;
+        }
+        .payment-option input[type="radio"] {
+            margin-right: 1rem;
+            accent-color: var(--sage);
+        }
+        .order-total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px dashed #ddd;
+            color: var(--forest-deep);
+        }
+    </style>
+</head>
+<body>
+
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="checkout-container">
+        <div class="form-section">
+            <h2 class="brand-font" style="margin-bottom: 1.5rem; color: var(--forest-deep);">Thông Tin Giao Hàng</h2>
+            
+            <div th:if="${error}" class="alert" style="background: #fde8e8; color: #c81e1e; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;" th:text="${error}"></div>
+
+            <form th:action="@{/order/submit}" method="POST" id="checkoutForm">
+                <div class="form-group">
+                    <label>Họ và tên</label>
+                    <input type="text" name="fullName" class="form-control" th:value="${user.fullName}" required>
+                </div>
+                <div class="form-group">
+                    <label>Số điện thoại</label>
+                    <input type="tel" name="phone" class="form-control" placeholder="09xxxx..." required>
+                </div>
+                <div class="form-group">
+                    <label>Địa chỉ giao hàng chi tiết</label>
+                    <textarea name="address" class="form-control" rows="3" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố" required></textarea>
+                </div>
+
+                <h3 class="brand-font" style="margin-top: 2rem; margin-bottom: 1rem; color: var(--forest-deep);">Phương thức thanh toán</h3>
+                <div class="payment-methods">
+                    <label class="payment-option">
+                        <input type="radio" name="paymentMethod" value="COD" checked>
+                        <div>
+                            <strong>Thanh toán khi nhận hàng (COD)</strong>
+                            <p style="font-size: 0.9rem; color: #666; margin-top: 0.25rem;">Thanh toán bằng tiền mặt khi shipper giao hàng tới.</p>
+                        </div>
+                    </label>
+                    
+                    <label class="payment-option">
+                        <input type="radio" name="paymentMethod" value="VNPAY">
+                        <div>
+                            <strong>Thanh toán qua VNPAY (Quét mã QR / Thẻ ATM)</strong>
+                            <p style="font-size: 0.9rem; color: #666; margin-top: 0.25rem;">Thanh toán an toàn, tiện lợi qua cổng VNPAY.</p>
+                        </div>
+                    </label>
+                </div>
+            </form>
+        </div>
+
+        <div class="summary-section">
+            <h3 class="brand-font" style="margin-bottom: 1.5rem; color: var(--forest-deep);">Tóm tắt đơn hàng</h3>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <span style="color: #666;">Tổng tiền hàng</span>
+                <strong th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <span style="color: #666;">Phí vận chuyển</span>
+                <strong>Miễn phí</strong>
+            </div>
+            
+            <div class="order-total-row">
+                <span>Tổng cộng</span>
+                <span style="color: var(--amber);" th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT')} + '₫'">0₫</span>
+            </div>
+
+            <button type="button" class="btn btn-primary-lg" style="width: 100%; margin-top: 2rem;" onclick="document.getElementById('checkoutForm').submit()">Xác nhận đặt hàng</button>
+        </div>
+    </main>
+
+</body>
+</html>
