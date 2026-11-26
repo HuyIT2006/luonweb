@@ -1,0 +1,15 @@
+.git
+.gitignore
+.mvn/wrapper/maven-wrapper.jar
+target/
+build/
+taste-skill/
+*.md
+*.dbml
+*.sql
+.env
+.idea
+.vscode
+main.py
+requirements.txt
+

@@ -1,4 +1,4 @@
-package com.kinhdoanh.luonweb.entity;
+package com.kinhdoanh.luonweb.entity.auth;
 
 import jakarta.persistence.*;
 import lombok.*;
